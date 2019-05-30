@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OnDestroy } from '@angular/core';
+import { CartItemsService } from '../cart/cart-items.service';
 
 @Component({
   selector: 'app-billing',
@@ -7,21 +8,29 @@ import { OnDestroy } from '@angular/core';
   styleUrls: ['./billing.component.css']
 })
 export class BillingComponent implements OnInit, OnDestroy {
+  cartList: string[];
+  total: number;
 
   ngOnDestroy(): void {
     console.log(this.model);
-    //Since localstorage only stores string.
     localStorage.setItem('model', JSON.stringify(this.model))
   }
 
-  constructor() { }
+  constructor(private cartItemsService: CartItemsService) { }
   model = {};
 
   ngOnInit() {
     if(localStorage.getItem('model')){
-      //Since localstorage stores string and we need object to bind to HTML.
       this.model = JSON.parse(localStorage.getItem('model'));
     }
+    this.cartItemsService.cartListSource$.subscribe((data)=>{
+      this.cartList = data;
+      let total = 0;
+      data.forEach((element : any) => {
+        total = total + element.price;
+      });
+      this.total  = total;
+    })
     }
 
 }

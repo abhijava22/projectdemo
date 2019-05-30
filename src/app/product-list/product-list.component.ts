@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-
+import { CartItemsService} from 'src/app/cart/cart-items.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-product-list',
   templateUrl: './product-list.component.html',
@@ -7,7 +8,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProductListComponent implements OnInit {
 
-  constructor() { }
+  constructor(private cartItemsService: CartItemsService,
+    private router: Router){}
   public productlist : any[] = [
     {
       productname : 'JBL Flip 4',
@@ -46,8 +48,27 @@ export class ProductListComponent implements OnInit {
       qty : 0
     }
   ];
-
+  addToCart(item){
+    item.qty = ++item.qty;
+    this.cartItemsService.addToCartItmes(item);
+  }
+  removeFromCart(item){
+    item.qty = --item.qty;
+    this.cartItemsService.removerFromCartList(item)
+  }
   ngOnInit() {
+    this.cartItemsService.cartListSource$.subscribe((data)=>{
+      this.productlist.forEach((element)=>{
+        data.forEach((ele:any)=>{
+          if(element.code === ele.code){
+            element.qty = ele.qty;
+          }
+        })
+      })
+    })
+  }
+  moveToCheckout(){
+    this.router.navigate(['/billing']);
   }
 
 }
